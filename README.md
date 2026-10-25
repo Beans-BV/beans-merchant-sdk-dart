@@ -286,7 +286,7 @@ Parameters:
 `BeansMerchantSdk.custom({required Uri apiBaseUrl, required String apiKey, http.Client? httpClient})`: Initializes a new SDK instance with a custom API base URL.
 
 Parameters:
-- `apiBaseUrl`: The base URL of the merchant API.
+- `apiBaseUrl`: The base URL of the merchant API, including the version, for example `Uri.parse('https://localhost:5200/v4')`. A trailing `/` is removed.
 - `apiKey`: Your Beans Merchant API key.
 - `httpClient` *(optional)*: Custom HTTP client for testing or custom configurations.
 
@@ -431,6 +431,28 @@ final response = await sdk.generateSvgQrCode(
 );
 log('Generated deeplink: ${response.deeplink}');
 log('Generated SVG QR code: ${response.svgQrCode}');
+```
+
+#### Get Payment Request Status
+
+*Gets the status of a payment request.*
+
+Method Signature:<br>
+*`Future<PaymentRequestStatusResponse> getPaymentRequestStatus(String paymentRequestId)`*
+
+Parameters:<br>
+  - `paymentRequestId`: *The `id` of the payment request, as returned by `generateDeeplink`, `generatePngQrCode` or `generateSvgQrCode`.*
+
+Returns:<br>
+`Future<PaymentRequestStatusResponse>`: *A future that resolves with the status of the payment request.*
+
+Return Object Properties:<br>
+  - `status`: *`Pending` or `Completed`.*
+
+Example:<br>
+```dart
+final response = await sdk.getPaymentRequestStatus('paymentRequestId');
+log('Payment request status: ${response.status}');
 ```
 
 #### Create Company Account

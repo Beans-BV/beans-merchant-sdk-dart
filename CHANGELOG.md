@@ -1,3 +1,10 @@
+## Unreleased
+* Added `getPaymentRequestStatus()` method and `PaymentRequestStatusResponse` class
+* Exported `GetCompanyAccountResponse` and `GetCompanyAccountsResponse`
+* `BeansMerchantSdk.custom()` now removes a trailing `/` from `apiBaseUrl`
+* Deprecated `UploadAvatarResponse`, because no method returns it
+* Added a `custom` environment option to the developer example
+
 ## 5.0.1
 * Added `avatarUrl` to `CompanyAccount` class
 * Added `LanguageString` class for better multi-language support

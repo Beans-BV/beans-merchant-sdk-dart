@@ -1,3 +1,6 @@
+@Deprecated(
+  'No method returns this. uploadCompanyAccountAvatar() returns CompanyAccount.',
+)
 class UploadAvatarResponse {
   final String avatarId;
 
@@ -16,4 +19,4 @@ class UploadAvatarResponse {
       'avatarId': avatarId,
     };
   }
-} 
+}
