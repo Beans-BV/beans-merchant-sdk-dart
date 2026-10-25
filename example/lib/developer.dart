@@ -41,12 +41,15 @@ class _DeveloperPageState extends State<DeveloperPage> {
   final memoController = TextEditingController();
   final maxAllowedPaymentsController = TextEditingController();
   final webhookUrlController = TextEditingController();
-  final customEnvironmentController = TextEditingController();
+  final customEnvironmentController = TextEditingController(
+    text: 'https://localhost:5200/v4',
+  );
 
   String selectedEnvironment = 'production';
   List<String> environments = [
     'staging',
     'production',
+    'custom',
   ];
 
   List<DropdownMenuItem<String>>? stellarCurrenciesDropdownItems;
@@ -65,6 +68,13 @@ class _DeveloperPageState extends State<DeveloperPage> {
     switch (selectedEnvironment) {
       case 'production':
         sdk = BeansMerchantSdk.production(
+          apiKey: apiKeyController.text,
+        );
+        break;
+      case 'custom':
+        sdk = BeansMerchantSdk.custom(
+          // The field is parsed on every keystroke, so it is often incomplete.
+          apiBaseUrl: Uri.tryParse(customEnvironmentController.text) ?? Uri(),
           apiKey: apiKeyController.text,
         );
         break;
@@ -159,7 +169,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
           padding: const EdgeInsets.all(32.0),
           child: ListView(
             children: [
-              DropdownButtonFormField2(
+              DropdownButtonFormField2<String>(
                 decoration: InputDecoration(
                   labelText: 'Select Environment',
                   border: OutlineInputBorder(
@@ -174,12 +184,27 @@ class _DeveloperPageState extends State<DeveloperPage> {
                       child: Text(env),
                     ),
                 ],
-                onChanged: (_) {
+                onChanged: (environment) {
+                  selectedEnvironment = environment!;
                   apiKeyController.clear();
                   stellarAccountIdController.clear();
-                  _loadInitialData();
+                  _initSdk();
+                  setState(() {});
                 },
               ),
+              if (selectedEnvironment == 'custom') ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: customEnvironmentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Custom Environment',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (_) {
+                    _initSdk();
+                  },
+                ),
+              ],
               const SizedBox(height: 16),
               TextField(
                 controller: apiKeyController,
@@ -189,7 +214,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
                 ),
                 onChanged: (_) {
                   stellarAccountIdController.clear();
-                  _loadInitialData();
+                  _initSdk();
                 },
               ),
               const SizedBox(height: 16),

@@ -12,14 +12,16 @@ import 'models/fetch_stellar_currencies_response.dart';
 import 'models/get_company_account_response.dart';
 import 'models/get_company_accounts_response.dart';
 import 'models/language_string.dart';
+import 'models/payment_request_status_response.dart';
 import 'models/qr_code_response.dart';
 
 class BeansMerchantSdk {
   BeansMerchantSdk.custom({
-    required this.apiBaseUrl,
+    required Uri apiBaseUrl,
     required this.apiKey,
     http.Client? httpClient,
-  }) : httpClient = httpClient ?? http.Client();
+  })  : apiBaseUrl = _withoutTrailingSlash(apiBaseUrl),
+        httpClient = httpClient ?? http.Client();
 
   factory BeansMerchantSdk.production({
     required String apiKey,
@@ -46,6 +48,15 @@ class BeansMerchantSdk {
   final Uri apiBaseUrl;
   final String apiKey;
   final http.Client httpClient;
+
+  /// Endpoint paths are appended as `'$apiBaseUrl/...'`, so a trailing `/`
+  /// would produce `//` in every request URL.
+  static Uri _withoutTrailingSlash(Uri url) {
+    if (!url.path.endsWith('/')) {
+      return url;
+    }
+    return url.replace(path: url.path.substring(0, url.path.length - 1));
+  }
 
   Future<FetchStellarCurrenciesResponse> fetchStellarCurrencies(
     String stellarAccountId,
@@ -164,6 +175,31 @@ class BeansMerchantSdk {
       return PngQrCodeResponse.fromJson(json) as T;
     } else {
       throw Exception('Unknown class');
+    }
+  }
+
+  /// Gets the status of a payment request
+  ///
+  /// [paymentRequestId] The `id` of the payment request, as returned by
+  /// [generateDeeplink], [generatePngQrCode] or [generateSvgQrCode]
+  Future<PaymentRequestStatusResponse> getPaymentRequestStatus(
+    String paymentRequestId,
+  ) async {
+    final response = await httpClient.get(
+      Uri.parse(
+        '$apiBaseUrl/companies/me/payment-requests/$paymentRequestId/status',
+      ),
+      headers: {'X-Beans-Company-Api-Key': apiKey},
+    );
+
+    if (response.statusCode == 200) {
+      return PaymentRequestStatusResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to get payment request status',
+      );
     }
   }
 
@@ -334,7 +370,7 @@ class BeansMerchantSdk {
       throw ApiException(
         response.statusCode,
         response,
-        'Failed to fetch merchant accounts',
+        'Failed to fetch company accounts',
       );
     }
   }
