@@ -1,4 +1,4 @@
-## Unreleased
+## 5.1.0
 * Added `getPaymentRequestStatus()` method and `PaymentRequestStatusResponse` class
 * Exported `GetCompanyAccountResponse` and `GetCompanyAccountsResponse`
 * `BeansMerchantSdk.custom()` now removes a trailing `/` from `apiBaseUrl`
